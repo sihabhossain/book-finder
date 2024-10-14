@@ -1,5 +1,5 @@
-// pages/HomePage.js
 import React, { useState, useEffect } from "react";
+import BookCard from "../components/BookCard";
 
 const HomePage = () => {
   const [books, setBooks] = useState([]);
@@ -20,24 +20,24 @@ const HomePage = () => {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center">
         Discover Books
       </h1>
 
       {/* Search bar and Filter */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8 space-y-4 md:space-y-0">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8 space-y-4 md:space-y-0 md:space-x-4">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by title..."
-          className="w-full md:w-1/2 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
+          className="w-full md:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
         />
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          className="w-full md:w-1/4 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
+          className="w-full md:w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
         >
           <option value="">All Genres</option>
           <option value="Science Fiction">Science Fiction</option>
@@ -48,23 +48,9 @@ const HomePage = () => {
       </div>
 
       {/* Book list */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <div key={book.id} className="bg-white p-4 rounded-lg shadow-lg">
-              <img
-                src={book.formats["image/jpeg"]}
-                alt={book.title}
-                className="h-64 w-full object-cover rounded-md mb-4"
-              />
-              <h2 className="text-lg font-semibold text-gray-700">
-                {book.title}
-              </h2>
-              <p className="text-gray-500">
-                by {book.authors.map((author) => author.name).join(", ")}
-              </p>
-            </div>
-          ))
+          filteredBooks.map((book) => <BookCard key={book.id} book={book} />)
         ) : (
           <p className="text-gray-500">No books found</p>
         )}

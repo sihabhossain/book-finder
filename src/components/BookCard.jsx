@@ -1,5 +1,5 @@
-// components/BookCard.js
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -17,15 +17,35 @@ const BookCard = ({ book }) => {
   };
 
   return (
-    <div className="book-card">
-      <img
-        src={book.formats["image/jpeg"]}
-        alt={book.title}
-        className="book-cover"
-      />
-      <h3>{book.title}</h3>
-      <p>{book.authors[0].name}</p>
-      <button onClick={toggleWishlist}>{isWishlisted ? "💖" : "🤍"}</button>
+    <div className="w-full p-4">
+      <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between relative cursor-pointer transition-transform transform hover:scale-105">
+        <Link to={`/book/:${book?.id}`} className="flex-1 flex flex-col">
+          {/* Image with responsive height */}
+          <img
+            src={book.formats["image/jpeg"]}
+            alt={book.title}
+            className="h-48 w-full object-cover rounded-md mb-4"
+          />
+
+          {/* Title with truncation */}
+          <h2 className="text-lg font-semibold text-gray-700 truncate">
+            {book.title}
+          </h2>
+
+          {/* Author names */}
+          <p className="text-gray-500 truncate">
+            by {book.authors.map((author) => author.name).join(", ")}
+          </p>
+        </Link>
+
+        {/* Wishlist button */}
+        <button
+          onClick={toggleWishlist}
+          className="absolute top-4 right-4 text-2xl hover:scale-110 transition-transform"
+        >
+          {isWishlisted ? "💖" : "🤍"}
+        </button>
+      </div>
     </div>
   );
 };
