@@ -11,6 +11,17 @@ const HomePage = () => {
   const [nextPage, setNextPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
 
+  // Function to extract unique genres from subjects
+  const extractGenres = (books) => {
+    const genreSet = new Set();
+    books.forEach((book) => {
+      book.subjects.forEach((subject) => {
+        genreSet.add(subject);
+      });
+    });
+    return Array.from(genreSet);
+  };
+
   const fetchBooks = async (url) => {
     setLoading(true);
     try {
@@ -20,19 +31,15 @@ const HomePage = () => {
       setNextPage(data.next);
       setPrevPage(data.previous);
 
-      // Log the fetched data to check its structure
-      console.log("Fetched data:", data.results);
+      // Extract unique genres from the fetched books and set them
+      const extractedGenres = extractGenres(data.results);
+      setGenres(extractedGenres);
 
-      // Extract unique genres from the fetched books
-      const allGenres = data.results.flatMap((book) => book.subjects || []);
-      const uniqueGenres = [...new Set(allGenres)];
-      console.log("Unique genres:", uniqueGenres); // Log unique genres for debugging
-      setGenres(uniqueGenres);
-
-      // Cache the books in localStorage
+      // Cache the books and genres in localStorage
       localStorage.setItem("booksCache", JSON.stringify(data.results));
       localStorage.setItem("nextPageCache", data.next);
       localStorage.setItem("prevPageCache", data.previous);
+      localStorage.setItem("genresCache", JSON.stringify(extractedGenres));
     } catch (error) {
       console.error("Error fetching books:", error);
     } finally {
@@ -44,12 +51,14 @@ const HomePage = () => {
     const cachedBooks = localStorage.getItem("booksCache");
     const cachedNextPage = localStorage.getItem("nextPageCache");
     const cachedPrevPage = localStorage.getItem("prevPageCache");
+    const cachedGenres = localStorage.getItem("genresCache");
 
-    if (cachedBooks) {
+    if (cachedBooks && cachedGenres) {
       // Use cached data if available
       setBooks(JSON.parse(cachedBooks));
       setNextPage(cachedNextPage);
       setPrevPage(cachedPrevPage);
+      setGenres(JSON.parse(cachedGenres));
       setLoading(false);
     } else {
       fetchBooks("https://gutendex.com/books");
@@ -68,6 +77,7 @@ const HomePage = () => {
     }
   };
 
+  // Filter books based on search and genre
   const filteredBooks = books.filter(
     (book) =>
       book.title.toLowerCase().includes(search.toLowerCase()) &&
