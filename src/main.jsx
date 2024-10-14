@@ -6,22 +6,23 @@ import HomePage from "./pages/HomePage";
 import WishlistPage from "./pages/WishListPage";
 import BookDetailsPage from "./pages/BookDetailsPage";
 import "./index.css";
+import { Toaster } from "sonner";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // Wrap with App which includes Navbar
+    element: <App />,
     children: [
       {
-        path: "/", // Home route
+        path: "/",
         element: <HomePage />,
       },
       {
-        path: "wishlist", // Wishlist route
+        path: "wishlist",
         element: <WishlistPage />,
       },
       {
-        path: "book/:id", // Dynamic book details route
+        path: "book/:id", 
         element: <BookDetailsPage />,
       },
     ],
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <Toaster position="top-center" />
     <RouterProvider router={router} />
   </React.StrictMode>
 );

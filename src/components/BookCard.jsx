@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const BookCard = ({ book }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Check local storage to see if the book is already wishlisted
   useEffect(() => {
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     const isInWishlist = wishlist.some((item) => item.id === book.id);
@@ -24,13 +24,23 @@ const BookCard = ({ book }) => {
       }
     }
 
+    toast("Book added to your wishlist");
+
     setIsWishlisted(!isWishlisted);
+  };
+
+  // Function to truncate genre text
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
   };
 
   return (
     <div className="w-full p-4">
       <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between relative cursor-pointer transition-transform transform hover:scale-105">
-        <Link to={`/book/:${book?.id}`} className="flex-1 flex flex-col">
+        <Link to={`/book/${book.id}`} className="flex-1 flex flex-col">
           {/* Image with responsive height */}
           <img
             src={book.formats["image/jpeg"]}
@@ -47,6 +57,17 @@ const BookCard = ({ book }) => {
           <p className="text-gray-500 truncate">
             by {book.authors.map((author) => author.name).join(", ")}
           </p>
+
+          {/* Genre (Subjects) with truncation */}
+          {book.subjects && book.subjects.length > 0 && (
+            <p className="text-gray-400 text-sm">
+              Genre: {truncateText(book.subjects.join(", "), 30)}{" "}
+              {/* Limit to 30 characters */}
+            </p>
+          )}
+
+          {/* Book ID */}
+          <p className="text-gray-400 text-sm">ID: {book.id}</p>
         </Link>
 
         {/* Wishlist button */}

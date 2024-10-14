@@ -1,37 +1,79 @@
 import React, { useState, useEffect } from "react";
-import BookCard from "../components/BookCard";
+import AnimatedBookCard from "../components/AnimatedBookCard"; // Import the new component
 import Loading from "../components/Loading";
 
 const HomePage = () => {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
+  const [genres, setGenres] = useState([]);
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+
+  const fetchBooks = async (url) => {
+    setLoading(true);
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setBooks(data.results);
+      setNextPage(data.next);
+      setPrevPage(data.previous);
+
+      // Log the fetched data to check its structure
+      console.log("Fetched data:", data.results);
+
+      // Extract unique genres from the fetched books
+      const allGenres = data.results.flatMap((book) => book.subjects || []);
+      const uniqueGenres = [...new Set(allGenres)];
+      console.log("Unique genres:", uniqueGenres); // Log unique genres for debugging
+      setGenres(uniqueGenres);
+
+      // Cache the books in localStorage
+      localStorage.setItem("booksCache", JSON.stringify(data.results));
+      localStorage.setItem("nextPageCache", data.next);
+      localStorage.setItem("prevPageCache", data.previous);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Fetch books data from the public API
-    const fetchBooks = async () => {
-      try {
-        const response = await fetch("https://gutendex.com/books");
-        const data = await response.json();
-        setBooks(data.results);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-      } finally {
-        setLoading(false); // Set loading to false after fetch
-      }
-    };
+    const cachedBooks = localStorage.getItem("booksCache");
+    const cachedNextPage = localStorage.getItem("nextPageCache");
+    const cachedPrevPage = localStorage.getItem("prevPageCache");
 
-    fetchBooks();
+    if (cachedBooks) {
+      // Use cached data if available
+      setBooks(JSON.parse(cachedBooks));
+      setNextPage(cachedNextPage);
+      setPrevPage(cachedPrevPage);
+      setLoading(false);
+    } else {
+      fetchBooks("https://gutendex.com/books");
+    }
   }, []);
+
+  const handleNextPage = () => {
+    if (nextPage) {
+      fetchBooks(nextPage);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (prevPage) {
+      fetchBooks(prevPage);
+    }
+  };
 
   const filteredBooks = books.filter(
     (book) =>
       book.title.toLowerCase().includes(search.toLowerCase()) &&
-      (genre === "" || book.subjects.includes(genre))
+      (genre === "" || book.subjects.some((subject) => subject.includes(genre))) // Use .some() to check for genre
   );
 
-  // Show loading component while fetching data
   if (loading) {
     return <Loading />;
   }
@@ -49,28 +91,49 @@ const HomePage = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by title..."
-          className="w-full md:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
+          className="w-full md:w-2/3 px-4 py-2 border rounded-md focus:outline-none focus:border-purple-500"
         />
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
-          className="w-full md:w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:border-gray-500"
+          className="w-full md:w-1/3 px-4 py-2 border rounded-md focus:outline-none focus:border-purple-500"
         >
           <option value="">All Genres</option>
-          <option value="Science Fiction">Science Fiction</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Biography">Biography</option>
-          <option value="History">History</option>
+          {genres.map((genre, index) => (
+            <option key={index} value={genre}>
+              {genre.length > 20 ? `${genre.substring(0, 20)}...` : genre}
+            </option>
+          ))}
         </select>
       </div>
 
       {/* Book list */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => <BookCard key={book.id} book={book} />)
+          filteredBooks.map((book) => (
+            <AnimatedBookCard key={book.id} book={book} />
+          ))
         ) : (
           <p className="text-gray-500">No books found</p>
         )}
+      </div>
+
+      {/* Pagination buttons */}
+      <div className="flex justify-between mt-8">
+        <button
+          onClick={handlePrevPage}
+          disabled={!prevPage}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          onClick={handleNextPage}
+          disabled={!nextPage}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
