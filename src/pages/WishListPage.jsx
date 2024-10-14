@@ -9,8 +9,8 @@ const WishlistPage = () => {
     const updatedWishlist = wishlistedBooks.filter(
       (book) => book.id !== bookId
     );
-    setWishlistedBooks(updatedWishlist); 
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist)); 
+    setWishlistedBooks(updatedWishlist);
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
   };
 
   return (
@@ -23,7 +23,7 @@ const WishlistPage = () => {
           {wishlistedBooks.map((book) => (
             <motion.div
               key={book.id}
-              className="bg-white p-4 rounded-lg shadow-lg"
+              className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between h-96 w-full" // Ensure same height for all cards
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -32,7 +32,7 @@ const WishlistPage = () => {
               <img
                 src={book.formats["image/jpeg"]}
                 alt={book.title}
-                className="h-64 w-full object-cover rounded-md mb-4"
+                className="h-40 w-full object-cover rounded-md mb-4" // Consistent height for the image
               />
               <h2 className="text-lg font-semibold text-gray-700">
                 {book.title}
