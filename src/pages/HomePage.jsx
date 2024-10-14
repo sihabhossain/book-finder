@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from "react";
 import BookCard from "../components/BookCard";
+import Loading from "../components/Loading";
 
 const HomePage = () => {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
     // Fetch books data from the public API
-    fetch("https://gutendex.com/books")
-      .then((response) => response.json())
-      .then((data) => setBooks(data.results));
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch("https://gutendex.com/books");
+        const data = await response.json();
+        setBooks(data.results);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetch
+      }
+    };
+
+    fetchBooks();
   }, []);
 
   const filteredBooks = books.filter(
@@ -18,6 +30,11 @@ const HomePage = () => {
       book.title.toLowerCase().includes(search.toLowerCase()) &&
       (genre === "" || book.subjects.includes(genre))
   );
+
+  // Show loading component while fetching data
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

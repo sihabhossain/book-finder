@@ -1,4 +1,3 @@
-// pages/WishlistPage.js
 import React from "react";
 
 const WishlistPage = () => {
@@ -14,7 +13,7 @@ const WishlistPage = () => {
           {wishlistedBooks.map((book) => (
             <div key={book.id} className="bg-white p-4 rounded-lg shadow-lg">
               <img
-                src={book.cover_image}
+                src={book.formats["image/jpeg"]}
                 alt={book.title}
                 className="h-64 w-full object-cover rounded-md mb-4"
               />

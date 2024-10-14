@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
+  // Check local storage to see if the book is already wishlisted
+  useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const isInWishlist = wishlist.some((item) => item.id === book.id);
+    setIsWishlisted(isInWishlist);
+  }, [book.id]);
+
   const toggleWishlist = () => {
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
     if (isWishlisted) {
       const updatedWishlist = wishlist.filter((item) => item.id !== book.id);
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     } else {
-      wishlist.push(book);
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      if (!wishlist.some((item) => item.id === book.id)) {
+        wishlist.push(book);
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      }
     }
+
     setIsWishlisted(!isWishlisted);
   };
 

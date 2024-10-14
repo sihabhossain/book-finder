@@ -1,6 +1,7 @@
 // pages/BookDetailsPage.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Loading from "../components/Loading";
 
 const BookDetailsPage = () => {
   const { id } = useParams();
@@ -13,7 +14,7 @@ const BookDetailsPage = () => {
   }, [id]);
 
   if (!book) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   return (
